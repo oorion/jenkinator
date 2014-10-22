@@ -15,6 +15,10 @@ BranchDB.prototype = {
     console.log("Tracking Branch:", branchName);
     this._getDb()("trackedBranches").push({ name: branchName });
   },
+  
+  updateTrackedBranch: function(branchName, values) {
+    this._getDb()("trackedBranches").find({ name: branchName }).assign(values);
+  },
 
   trackedBranches: function() {
     return this._getDb()("trackedBranches").value();

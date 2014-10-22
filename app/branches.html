@@ -37,14 +37,12 @@
         for (var i = 0; i < list.length; i++) {
           domList.append(createListItem(list[i].name));
         }
+        
+  			domList.sortable({
+  				handle: 'span'
+  			});
       }
     });
-  
-		$(function() {
-			$('.handles').sortable({
-				handle: 'span'
-			});
-		});
 	</script>
 </body>
 </html>
