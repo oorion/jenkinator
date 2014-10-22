@@ -1,0 +1,28 @@
+{
+  "name": "jenkinator",
+  "version": "0.0.1",
+  "description": "jenkins branch build notification using atom-shell",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/euge/jenkinator.git"
+  },
+  "keywords": [
+    "jenkins",
+    "atom-shell"
+  ],
+  "author": "Euge Gimelberg",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/euge/jenkinator/issues"
+  },
+  "homepage": "https://github.com/euge/jenkinator",
+  "devDependencies": {
+    "grunt-download-atom-shell": "^0.10.0",
+    "shelljs": "^0.3.0",
+    "grunt": "^0.4.5"
+  }
+}
