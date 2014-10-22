@@ -1,13 +1,16 @@
 <html>
 <body>
-  <form name="branch-form">
+  <form id="branch-form">
     <input type="text" name="branch" />
     <input type="submit" value="Add" />
   </form>
   <script src="./libs/jquery-2.0.3.min.js"></script>
   <script>
     $(function() {
-      $("body").css("background-color", "red");
+      $("#branch-form").submit(function() {
+        var branchName = $("[name=branch]").val();
+        require('ipc').send("branchName:selected", branchName);
+      }).find(":input:first").focus();
     })
   </script>
 </body>

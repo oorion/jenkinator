@@ -11,7 +11,8 @@
     "jenkins"
   ],
   "dependencies" : {
-    "lowdb" : "0.5.0"
+    "lowdb" : "0.5.0",
+    "shelljs": "^0.3.0"
   },
   "author": "Euge Gimelberg",
   "license": "MIT"
