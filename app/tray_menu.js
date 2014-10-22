@@ -26,7 +26,9 @@ TrayMenu.prototype = {
     // create entry for branch
     trackedBranches.forEach(function(branch) {
       menu.append(new MenuItem({
-        label: branch.name
+        type: "submenu",
+        label: "😃😡 " + branch.name,
+        submenu: this._createBranchSubmenu(branch.name)
       }));
     }, this);
 
@@ -37,7 +39,7 @@ TrayMenu.prototype = {
         this._createBranchPromptWindow();
       }.bind(this)
     }));
-    
+
     menu.append(new MenuItem({
       label : "Manage Branches...",
       type: "normal",
@@ -54,6 +56,18 @@ TrayMenu.prototype = {
     }));
 
     this._tray.setContextMenu(menu);
+  },
+
+  _createBranchSubmenu: function(branchName) {
+    var menu = new Menu();
+    menu.append(new MenuItem({
+      label: "View in Github"
+    }));
+
+    menu.append(new MenuItem({
+      label: "View in Jenkins"
+    }));
+    return menu;
   },
 
   _initEvents : function() {
@@ -74,7 +88,7 @@ TrayMenu.prototype = {
     this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
     this._branchPromptWindow.focus();
   },
-  
+
   _openBranchManagementWindow : function() {
     if (this._branchManagementWindow) {
       this._branchManagementWindow.focus();
@@ -84,14 +98,14 @@ TrayMenu.prototype = {
       this._branchManagementWindow.on('closed', function() {
         this._branchManagementWindow = null;
       }.bind(this));
-      
+
       this._branchManagementWindow.loadUrl('file://' + __dirname + '/branches.html');
       this._branchManagementWindow.focus();
 
       this._branchManagementWindow.webContents.on('did-finish-load', function() {
         var branches = this._db.trackedBranches();
         console.log(branches);
-        
+
         this._branchManagementWindow.webContents.send("branches:load", branches);
       }.bind(this));
     }
