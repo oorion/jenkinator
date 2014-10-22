@@ -1,0 +1,50 @@
+<!doctype html>
+<head>
+	<meta charset="utf-8">
+	<title>Manage Branches</title>
+  <link rel="stylesheet" href="./libs/jquery.sortable.css">
+</head>
+<body>
+	<section>
+		<ul class="handles list">
+			<li>No branches yet...</li>
+		</ul>
+	</section>
+  
+  <script src="./libs/jquery-2.0.3.min.js"></script>
+  <script src="./libs/jquery.sortable.min.js"></script>
+  
+	<script type="text/javascript">
+    function createListItem(item_name) {
+      var li = $("<li></li>");
+      li.append("<span>&equiv;</span>");
+
+      var branch_link = $("<a>" + item_name + "</a>");
+      
+      li.append(branch_link);
+      return li;
+    }
+    
+    require("ipc").on("branches:load", function(list) {
+      console.log("branches:load")
+      console.log(JSON.stringify(list));
+      
+      var domList = $('ul.list');
+
+      if (list.length > 0) {
+        domList.empty();
+      
+        for (var i = 0; i < list.length; i++) {
+          domList.append(createListItem(list[i].name));
+        }
+      }
+    });
+  
+		$(function() {
+			$('.handles').sortable({
+				handle: 'span'
+			});
+		});
+	</script>
+</body>
+</html>

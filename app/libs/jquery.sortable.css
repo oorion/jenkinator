@@ -1,0 +1,69 @@
+.connected, .sortable, .exclude, .handles {
+	margin: auto;
+	padding: 0;
+	-webkit-touch-callout: none;
+	-webkit-user-select: none;
+	-khtml-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	user-select: none;
+}
+
+.connected li, .sortable li, .exclude li, .handles li {
+	list-style: none;
+	border: 1px solid #CCC;
+	background: #F6F6F6;
+	color: #1C94C4;
+	margin: 5px;
+	padding: 5px;
+	height: 22px;
+}
+
+.handles span {
+	cursor: move;
+  font-size: 30px;
+  line-height: 16px;
+  font-family: 'Courier';
+}
+
+.handles a {
+  padding-left: 10px;
+
+}
+
+li.disabled {
+	opacity: 0.5;
+}
+
+li.highlight {
+	background: #FEE25F;
+}
+
+li.sortable-placeholder {
+	border: 1px dashed #CCC;
+	background: none;
+}
+
+body {
+  background-color: #333;
+  font-family: 'Helvetica Neue';
+}
+
+section {
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0,0,0,0.1);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.25);
+}
+
+section .title {
+    padding: 8px;
+    background: rgba(235,235,235,0.85);
+    border-bottom: 1px solid rgba(0,0,0,0.1);
+    text-align: center;
+  }
+  
+section ul {
+    padding: 10px;
+  }
+}
