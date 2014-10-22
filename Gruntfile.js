@@ -16,14 +16,18 @@ module.exports = function(grunt) {
     }
   });
 
-  grunt.registerTask("build", function() {
+  grunt.registerTask("clean", function() {
     // remove old package
     shell.rm("-rf", "dist");
     shell.mkdir("dist");
+  });
 
+  grunt.registerTask("copy", function() {
     // copy app source into a vanilla Atom Shell
     shell.exec("cp -R binaries/Atom.app/ " + grunt.config.get("distAppName"));
     shell.exec("cp -R app " + grunt.config.get("distAppName") + "/Contents/Resources");
   });
+
+  grunt.registerTask("build", ["clean", "copy"]);
 
 };
