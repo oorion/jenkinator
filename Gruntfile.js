@@ -16,6 +16,11 @@ module.exports = function(grunt) {
     }
   });
 
+  grunt.registerTask("apm-install", function() {
+    shell.cd("app");
+    shell.exec("apm install .")
+  });
+
   grunt.registerTask("clean", function() {
     // remove old package
     shell.rm("-rf", "dist");
@@ -28,6 +33,7 @@ module.exports = function(grunt) {
     shell.exec("cp -R app " + grunt.config.get("distAppName") + "/Contents/Resources");
   });
 
+  grunt.registerTask("bootstrap", ["download-atom-shell", "apm-install"]);
   grunt.registerTask("build", ["clean", "copy"]);
 
 };
