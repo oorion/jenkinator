@@ -1,5 +1,6 @@
 var Tray = require('tray');
 var Menu = require('menu');
+var MenuItem = require('menu-item');
 var App = require('app');
 var Dialog = require('dialog');
 var BrowserWindow = require('browser-window');
@@ -15,25 +16,34 @@ function TrayMenu(db) {
 TrayMenu.prototype = {
 
   _createMenu : function() {
-    var menu = Menu.buildFromTemplate([
-      {
-        type: "separator"
-      },
-      {
-        label : "Add Branch",
-        type: "normal",
-        click: function() {
-          this._createBranchPromptWindow();
-        }.bind(this)
-      },
-      {
-        label : "Quit",
-        type: "normal",
-        click: function() {
-          App.quit();
-        }
+    console.log("Creating menu");
+
+    var trackedBranches = this._db.trackedBranches();
+    var menu = new Menu();
+
+    console.log(trackedBranches);
+
+    // create entry for branch
+    trackedBranches.forEach(function(branch) {
+      menu.append(new MenuItem({
+        label: branch.name
+      }));
+    }, this);
+
+    menu.append(new MenuItem({ type: "separator" }));
+    menu.append(new MenuItem({
+      label: "Add Branch",
+      click: function() {
+        this._createBranchPromptWindow();
+      }.bind(this)
+    }));
+
+    menu.append(new MenuItem({
+      label: "Quit",
+      click: function() {
+        App.quit();
       }
-    ]);
+    }));
 
     this._tray.setContextMenu(menu);
   },
@@ -43,6 +53,11 @@ TrayMenu.prototype = {
       this._branchPromptWindow.close();
       delete this._branchPromptWindow;
       this._db.addTrackedBranch(branchName);
+
+      // writing to the db is throttled, so delay updating of the menu
+      setTimeout(function() {
+        this._createMenu();
+      }.bind(this), 100)
     }.bind(this));
   },
 
