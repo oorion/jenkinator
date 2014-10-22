@@ -14,4 +14,6 @@ App.on("ready", function() {
 
   var db = new BranchDB(storagePath);
   var trayMenu = new TrayMenu(db);
+
+  console.log("Tracking Branches:", db.trackedBranches());
 });
