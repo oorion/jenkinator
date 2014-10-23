@@ -26,6 +26,8 @@ BranchStatus.prototype = {
             console.log("Warning: did not find branch '" + branch.name + "' in server status JSON");
           }
         }, this);
+        
+        console.log("Sync done.");
       }
       else {
         console.log("SYNC ERROR with branch status server");

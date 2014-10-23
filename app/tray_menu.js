@@ -4,12 +4,19 @@ var MenuItem = require('menu-item');
 var App = require('app');
 var Dialog = require('dialog');
 var BrowserWindow = require('browser-window');
-var IPC = require('ipc')
+var IPC = require('ipc');
+var Shell = require('shell');
 
-function TrayMenu(db) {
+var MONTH_NAMES = new Array("Jan", "Feb", "Mar", 
+"Apr", "May", "June", "July", "Aug", "Sept", 
+"Oct", "Nov", "Dec");
+
+function TrayMenu(db, branchStatus) {
   this._db = db;
+  this._branchStatus = branchStatus;
   this._tray = new Tray(__dirname + "/imgs/blue.png");
   this._createMenu();
+  this._branchStatus.sync();
   this._initEvents();
 }
 
@@ -25,28 +32,47 @@ TrayMenu.prototype = {
 
     // create entry for branch
     trackedBranches.forEach(function(branch) {
+      var icon = "🕒";
+      switch(branch.status) {
+      case 'success':
+        icon = "😃";
+        break;
+      case 'failed':
+        icon = "😡";
+      }
+      
       menu.append(new MenuItem({
         type: "submenu",
-        label: "😃😡 " + branch.name,
-        submenu: this._createBranchSubmenu(branch.name)
+        label: icon + " " + branch.name,
+        submenu: this._createBranchSubmenu(branch)
       }));
     }, this);
+    
+    //
 
     menu.append(new MenuItem({ type: "separator" }));
     menu.append(new MenuItem({
-      label: "Add Branch",
+      label: "Add Branch...",
       click: function() {
         this._createBranchPromptWindow();
       }.bind(this)
     }));
-
+    
     menu.append(new MenuItem({
+      label: "Refresh status",
+      click: function() {
+        this._branchStatus.sync();
+      }.bind(this)
+    }));
+
+    /*menu.append(new MenuItem({
       label : "Manage Branches...",
       type: "normal",
       click: function() {
         this._openBranchManagementWindow();
       }.bind(this)
-    }));
+    }));*/
+
     menu.append(new MenuItem({ type: "separator" }));
     menu.append(new MenuItem({
       label: "Quit",
@@ -58,15 +84,59 @@ TrayMenu.prototype = {
     this._tray.setContextMenu(menu);
   },
 
-  _createBranchSubmenu: function(branchName) {
+  _createBranchSubmenu: function(branch) {
     var menu = new Menu();
-    menu.append(new MenuItem({
-      label: "View in Github"
-    }));
 
+    if (branch.lastBuild) {
+      var builtDateFormatted = branch.lastBuild.time;
+      
+      try {
+        var builtDate = new Date(Date.parse(builtDateFormatted));
+        builtDateFormatted = MONTH_NAMES[builtDate.getMonth()] + " " + builtDate.getDate() + ", " + builtDate.getFullYear() + " " + builtDate.getHours() + ":" + builtDate.getMinutes()
+      } catch (ex) {
+        console.log("Could not parse date: " + builtDateFormatted + ", error: " + ex.message());
+      }
+      
+      menu.append(new MenuItem({
+        label: "Last built: " + builtDateFormatted,
+        enabled: false
+      }));
+      
+      menu.append(new MenuItem({
+        label: "View in Github",
+        click: function() {
+          Shell.openExternal("http://www.github.com/invoca/web/commit/" + branch.lastBuild.sha);
+        }
+      }));
+
+      menu.append(new MenuItem({
+        label: "View in Jenkins",
+        click: function() {
+          Shell.openExternal(branch.lastBuild.url);
+        }
+      }));
+
+      menu.append(new MenuItem({ type: "separator" }));
+    }
+    else {
+      menu.append(new MenuItem({
+        label: "No build status found",
+        enabled: false
+      }));
+    }
+    
     menu.append(new MenuItem({
-      label: "View in Jenkins"
+      label: "✗ Stop tracking this branch",
+      click: function() {
+        dialog = Dialog.showMessageBox(
+          { type: "warning", title: "not implemented", message: "Euge, can you wire this up please? Need to delete from DB.", buttons: ["OK"] },
+          function(buttonIndex) {
+            console.log("button clicked: " + buttonIndex);
+          }
+        );
+      }.bind(this)
     }));
+    
     return menu;
   },
 
@@ -79,6 +149,7 @@ TrayMenu.prototype = {
       // writing to the db is throttled, so delay updating of the menu
       setTimeout(function() {
         this._createMenu();
+        this._branchStatus.sync();
       }.bind(this), 100)
     }.bind(this));
   },
