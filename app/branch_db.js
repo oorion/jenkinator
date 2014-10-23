@@ -19,7 +19,7 @@ BranchDB.prototype = {
       cb();
     });
   },
-  
+
   updateTrackedBranch: function(branchName, values) {
     console.log("Updating Branch:", branchName);
     this._db.save(branchName, values, function(err, key) {

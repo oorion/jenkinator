@@ -144,13 +144,10 @@ TrayMenu.prototype = {
     IPC.on("branchName:selected", function(event, branchName) {
       this._branchPromptWindow.close();
       delete this._branchPromptWindow;
-      this._db.addTrackedBranch(branchName);
-
-      // writing to the db is throttled, so delay updating of the menu
-      setTimeout(function() {
+      this._db.addTrackedBranch(branchName, function() {
         this._createMenu();
         this._branchStatus.sync();
-      }.bind(this), 100)
+      }.bind(this));
     }.bind(this));
   },
 
