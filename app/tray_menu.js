@@ -6,6 +6,7 @@ var Dialog = require('dialog');
 var BrowserWindow = require('browser-window');
 var IPC = require('ipc');
 var Shell = require('shell');
+var _ = require("underscore")._;
 
 var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
 "Apr", "May", "June", "July", "Aug", "Sept",
@@ -15,9 +16,11 @@ function TrayMenu(db, branchStatus) {
   this._db = db;
   this._branchStatus = branchStatus;
   this._tray = new Tray(__dirname + "/imgs/blue.png");
-  this._createMenu();
-  this._branchStatus.sync();
+
+  _.bindAll(this, "_initEvents", "_createMenu", "_createBranchSubmenu", "_openBranchPromptWindow", "_openBranchManagementWindow");
+
   this._initEvents();
+  this._branchStatus.sync();
 }
 
 TrayMenu.prototype = {
@@ -53,7 +56,7 @@ TrayMenu.prototype = {
       menu.append(new MenuItem({
         label: "Add Branch...",
         click: function() {
-          this._createBranchPromptWindow();
+          this._openBranchPromptWindow();
         }.bind(this)
       }));
 
@@ -127,13 +130,8 @@ TrayMenu.prototype = {
 
     menu.append(new MenuItem({
       label: "✗ Stop tracking this branch",
-      click: function() {
-        dialog = Dialog.showMessageBox(
-          { type: "warning", title: "not implemented", message: "Euge, can you wire this up please? Need to delete from DB.", buttons: ["OK"] },
-          function(buttonIndex) {
-            console.log("button clicked: " + buttonIndex);
-          }
-        );
+      click: function(menuItem) {
+        this._db.deleteTrackedBranch(branch.name, this._createMenu);
       }.bind(this)
     }));
 
@@ -149,10 +147,16 @@ TrayMenu.prototype = {
         this._branchStatus.sync();
       }.bind(this));
     }.bind(this));
+
+    this._branchStatus.on("sync:complete", function() {
+      console.log("BranchStatus sync is complete");
+      this._createMenu();
+    }.bind(this));
   },
 
-  _createBranchPromptWindow : function() {
-    this._branchPromptWindow = new BrowserWindow({ width: 300, height: 100, framse: false, center: true, "always-on-top": true });
+  _openBranchPromptWindow : function() {
+    // TODO - prevent duplicate windows
+    this._branchPromptWindow = new BrowserWindow({ width: 300, height: 100, frame: true, center: true, "always-on-top": true });
     this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
     this._branchPromptWindow.focus();
   },

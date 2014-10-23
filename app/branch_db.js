@@ -20,6 +20,12 @@ BranchDB.prototype = {
     });
   },
 
+  deleteTrackedBranch: function(branchName, cb) {
+    this._db.remove(branchName, function(err) {
+      cb();
+    });
+  },
+
   updateTrackedBranch: function(branchName, values) {
     console.log("Updating Branch:", branchName);
     this._db.save(branchName, values, function(err, key) {

@@ -1,7 +1,10 @@
 var request = require('request');
+var EventEmitter = require("events").EventEmitter;
+var _ = require("underscore")._;
 
 function BranchStatus(db) {
   this._db = db;
+  EventEmitter.call(this);
 }
 
 BranchStatus.prototype = {
@@ -27,17 +30,18 @@ BranchStatus.prototype = {
             }
           }, this);
         }.bind(this));
-
-        console.log("Sync done.");
       }
       else {
         console.log("SYNC ERROR with branch status server");
         console.log(error);
         console.log(response.statusCode);
       }
+      this.emit("sync:complete");
     }.bind(this));
   }
 
 };
+
+_.extend(BranchStatus.prototype, EventEmitter.prototype);
 
 module.exports = BranchStatus;

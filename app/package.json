@@ -15,7 +15,8 @@
     "request": "2.45.0",
     "shelljs": "^0.3.0",
     "nstore": "0.5.2",
-    "underscore": "1.7.0"
+    "underscore": "1.7.0",
+    "bluebird": "2.3.6"
   },
   "author": "Euge Gimelberg",
   "license": "MIT"
