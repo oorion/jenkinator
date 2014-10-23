@@ -155,10 +155,18 @@ TrayMenu.prototype = {
   },
 
   _openBranchPromptWindow : function() {
-    // TODO - prevent duplicate windows
-    this._branchPromptWindow = new BrowserWindow({ width: 300, height: 100, frame: true, center: true, "always-on-top": true });
-    this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
-    this._branchPromptWindow.focus();
+    if (this._branchPromptWindow) {
+      this._branchPromptWindow.focus();
+    }
+    else {
+      this._branchPromptWindow = new BrowserWindow({ width: 350, height: 90, frame: true, center: true, "always-on-top": true });
+      this._branchPromptWindow.on('closed', function() {
+        this._branchPromptWindow = null;
+      }.bind(this));
+      
+      this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
+      this._branchPromptWindow.focus();
+    }
   },
 
   _openBranchManagementWindow : function() {
@@ -176,7 +184,6 @@ TrayMenu.prototype = {
 
       this._branchManagementWindow.webContents.on('did-finish-load', function() {
         this._db.trackedBranches(function(branches) {
-          console.log(branches);
           this._branchManagementWindow.webContents.send("branches:load", branches);
         }.bind(this));
       }.bind(this));

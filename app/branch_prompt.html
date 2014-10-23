@@ -1,7 +1,41 @@
+<!doctype html>
 <html>
+<head>
+  <title>Add Branch</title>
+</head>
 <body>
+  <style>
+  body {
+    background-color: #eee;
+    font-family: 'Helvetica Neue';
+  }
+  
+  input[type=text] {
+    width: 80%;
+    font-size: 16px;
+    line-height: 28px;
+    color: #444;
+    padding-left: 5px;
+    margin-right: 10px;
+    border-radius: 4px;
+    border-width: 0px;
+  }
+  
+  input[type=submit] {
+    font-size: 20px;
+    height: 30px;
+  }
+  
+  h4 {
+    margin: 0 0 5px 0;
+    font-weight: normal;
+    font-size: 13px;
+  }
+  </style>
+  
   <form id="branch-form">
-    <input type="text" name="branch" />
+    <h4>Branch name (case sensitive):</h4>
+    <input type="text" name="branch" placeholder="" />
     <input type="submit" value="Add" />
   </form>
   <script src="./libs/jquery-2.0.3.min.js"></script>
@@ -9,7 +43,13 @@
     $(function() {
       $("#branch-form").submit(function() {
         var branchName = $("[name=branch]").val();
-        require('ipc').send("branchName:selected", branchName);
+        
+        if (branchName) {
+          require('ipc').send("branchName:selected", branchName);
+        };
+        
+        $("[name=branch]").val('');
+        return false;
       }).find(":input:first").focus();
     })
   </script>

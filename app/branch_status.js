@@ -13,11 +13,16 @@ BranchStatus.prototype = {
   sync : function() {
     request('http://jenkinstein.herokuapp.com/branches.json', function (error, response, body) {
       if (!error && response.statusCode == 200) {
-        var branches = JSON.parse(body);
+        var branches = JSON.parse(body).latest;
+        
+        // convert array to hash for convenience below
+        var branchesHash = {}
+        branches.forEach(function(b){
+          branchesHash[b.name] = b;
+        });
 
-        // walk the DB, look up the status in the branches JSON and update the DB
         this._db.trackedBranches(function(trackedBranches) {
-          Promise.all(_.compact(this._createWritePromises(trackedBranches))).then(function(a) {
+          Promise.all(_.compact(this._createWritePromises(branchesHash, trackedBranches))).then(function(a) {
             this.emit("sync:complete");
           }.bind(this));
         }.bind(this));
@@ -30,7 +35,7 @@ BranchStatus.prototype = {
     }.bind(this));
   },
 
-  _createWritePromises: function(trackedBranches) {
+  _createWritePromises: function(branches, trackedBranches) {
     var writePromises = trackedBranches.map(function(branch) {
       console.log("looking at " + branch.name);
 
