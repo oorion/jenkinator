@@ -16,7 +16,8 @@
     "shelljs": "^0.3.0",
     "nstore": "0.5.2",
     "underscore": "1.7.0",
-    "bluebird": "2.3.6"
+    "bluebird": "2.3.6",
+    "display-notification": "1.0.1"
   },
   "author": "Euge Gimelberg",
   "license": "MIT"
