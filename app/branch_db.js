@@ -2,6 +2,7 @@ var nStore = require('nstore')
 nStore = nStore.extend(require('nstore/query')());
 
 var _ = require("underscore")._;
+var Promise = require("bluebird");
 
 function BranchDB(storagePath) {
   this.storagePath = storagePath;
@@ -27,10 +28,12 @@ BranchDB.prototype = {
   },
 
   updateTrackedBranch: function(branchName, values) {
-    console.log("Updating Branch:", branchName);
-    this._db.save(branchName, values, function(err, key) {
-      // cb();
-    });
+    return new Promise(function(resolve) {
+      console.log("Updating Branch:", branchName);
+      this._db.save(branchName, values, function(err, key) {
+        resolve(true);
+      });
+    }.bind(this));
   },
 
   trackedBranches: function(cb) {

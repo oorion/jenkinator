@@ -1,6 +1,7 @@
 var request = require('request');
 var EventEmitter = require("events").EventEmitter;
 var _ = require("underscore")._;
+var Promise = require("bluebird");
 
 function BranchStatus(db) {
   this._db = db;
@@ -16,19 +17,9 @@ BranchStatus.prototype = {
 
         // walk the DB, look up the status in the branches JSON and update the DB
         this._db.trackedBranches(function(trackedBranches) {
-          trackedBranches.forEach(function(branch) {
-            console.log("looking at " + branch.name);
-
-            var info = branches[branch.name];
-
-            if (info) {
-              console.log(info);
-              this._db.updateTrackedBranch(branch.name, { name : branch.name, status : info.green ? 'success' : 'failed', lastBuild : { time : info.last_built, url : info.url, sha : info.sha } });
-            }
-            else {
-              console.log("Warning: did not find branch '" + branch.name + "' in server status JSON");
-            }
-          }, this);
+          Promise.all(_.compact(this._createWritePromises(trackedBranches))).then(function(a) {
+            this.emit("sync:complete");
+          }.bind(this));
         }.bind(this));
       }
       else {
@@ -36,8 +27,31 @@ BranchStatus.prototype = {
         console.log(error);
         console.log(response.statusCode);
       }
-      this.emit("sync:complete");
     }.bind(this));
+  },
+
+  _createWritePromises: function(trackedBranches) {
+    var writePromises = trackedBranches.map(function(branch) {
+      console.log("looking at " + branch.name);
+
+      var info = branches[branch.name];
+      if (info) {
+        console.log(info);
+        return this._db.updateTrackedBranch(branch.name, {
+          name : branch.name,
+          status : info.green ? 'success' : 'failed',
+          lastBuild : {
+            time : info.last_built,
+            url : info.url,
+            sha : info.sha
+          }
+        });
+      }
+      else {
+        console.log("Warning: did not find branch '" + branch.name + "' in server status JSON");
+        return null;
+      }
+    }, this);
   }
 
 };
