@@ -16,8 +16,23 @@ PrefsDB.prototype = {
         resolve(true);
       });
     }.bind(this));
-  }
-  
+  },
+
+  get: function(key) {
+    return new Promise(function(resolve) {
+      this._db.get(key, function(err, doc) {
+        resolve(doc);
+      })
+    }.bind(this));
+  },
+
+  set: function(key, values) {
+    return new Promise(function(resolve) {
+      this._db.save(key, values, function(err) {
+        resolve(true);
+      })
+    }.bind(this));
+  },
 };
 
 module.exports = PrefsDB;

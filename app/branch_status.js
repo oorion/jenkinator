@@ -2,7 +2,6 @@ var request = require('request');
 var EventEmitter = require("events").EventEmitter;
 var _ = require("underscore")._;
 var Promise = require("bluebird");
-var displayNotification = require('display-notification');
 
 function BranchStatus(db) {
   this._db = db;
@@ -45,8 +44,7 @@ BranchStatus.prototype = {
         this._db.trackedBranches(function(trackedBranches) {
           Promise.all(this._createWritePromises(branchesHash, trackedBranches)).then(function() {
             console.log("Syncing branch status...complete");
-            this.emit("sync:complete");
-            displayNotification({
+            this.emit("sync:complete", {
               title: 'Sync is complete',
               subtitle: 'Hi Nick!!',
               text: 'We have synced up',

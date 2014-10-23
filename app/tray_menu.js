@@ -8,16 +8,20 @@ var IPC = require('ipc');
 var Shell = require('shell');
 var Moment = require('moment');
 var _ = require("underscore")._;
+var EventEmitter = require("events").EventEmitter;
+
 
 var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
 "Apr", "May", "June", "July", "Aug", "Sept",
 "Oct", "Nov", "Dec");
 
-function TrayMenu(db, branchStatus) {
+function TrayMenu(db, prefsDb, branchStatus) {
   this._db = db;
+  this._prefsDb = prefsDb;
   this._branchStatus = branchStatus;
   this._tray = new Tray(__dirname + "/imgs/icon.png");
 
+  EventEmitter.call(this);
   _.bindAll(this, "_initEvents", "_createMenu", "_createBranchSubmenu", "_openBranchPromptWindow", "_openBranchManagementWindow");
 
   this._initEvents();
@@ -49,8 +53,6 @@ TrayMenu.prototype = {
         }));
       }, this);
 
-      //
-
       menu.append(new MenuItem({ type: "separator" }));
       menu.append(new MenuItem({
         label: "Add Branch...",
@@ -66,12 +68,19 @@ TrayMenu.prototype = {
         }.bind(this)
       }));
 
-      menu.append(new MenuItem({
+      var notificationMenuItem = new MenuItem({
         label: "Notify me of build changes",
         type: "checkbox",
-        click: function() {
+        click: function(menuItem) {
+          this._prefsDb.set("notifyOnStatusChange", menuItem.checked);
         }.bind(this)
-      }));
+      });
+
+      menu.append(notificationMenuItem);
+
+      this._prefsDb.get("notifyOnStatusChange").then(function(value) {
+        notificationMenuItem.checked = value;
+      });
 
       /*menu.append(new MenuItem({
         label : "Manage Branches...",
@@ -212,5 +221,7 @@ TrayMenu.prototype = {
     }
   }
 };
+
+_.extend(TrayMenu.prototype, EventEmitter.prototype);
 
 module.exports = TrayMenu;
