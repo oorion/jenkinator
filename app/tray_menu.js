@@ -6,6 +6,7 @@ var Dialog = require('dialog');
 var BrowserWindow = require('browser-window');
 var IPC = require('ipc');
 var Shell = require('shell');
+var Moment = require('moment');
 var _ = require("underscore")._;
 
 var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
@@ -15,12 +16,12 @@ var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
 function TrayMenu(db, branchStatus) {
   this._db = db;
   this._branchStatus = branchStatus;
-  this._tray = new Tray(__dirname + "/imgs/blue.png");
+  this._tray = new Tray(__dirname + "/imgs/icon.png");
 
   _.bindAll(this, "_initEvents", "_createMenu", "_createBranchSubmenu", "_openBranchPromptWindow", "_openBranchManagementWindow");
 
   this._initEvents();
-  this._branchStatus.sync();
+  this._branchStatus.startPolling();
 }
 
 TrayMenu.prototype = {
@@ -92,8 +93,7 @@ TrayMenu.prototype = {
       var builtDateFormatted = branch.lastBuild.time;
 
       try {
-        var builtDate = new Date(Date.parse(builtDateFormatted));
-        builtDateFormatted = MONTH_NAMES[builtDate.getMonth()] + " " + builtDate.getDate() + ", " + builtDate.getFullYear() + " " + builtDate.getHours() + ":" + builtDate.getMinutes()
+        builtDateFormatted = Moment(builtDateFormatted).format('MMM D, YYYY h:mm A');
       } catch (ex) {
         console.log("Could not parse date: " + builtDateFormatted + ", error: " + ex.message());
       }
@@ -146,7 +146,25 @@ TrayMenu.prototype = {
       }.bind(this));
     }.bind(this));
 
-    this._branchStatus.on("sync:complete", this._createMenu);
+    this._branchStatus.on("sync:start", function() {
+      console.log("event: BranchStatus sync is starting");
+      var menu = new Menu();
+      menu.append(new MenuItem({
+        label: "Syncing build statuses...",
+        enabled: false
+      }));
+      
+      this._tray.setContextMenu(menu);
+      
+      this._tray.setImage(__dirname + "/imgs/blue.png");
+    }.bind(this));
+    
+    this._branchStatus.on("sync:complete", function() {
+      console.log("event: BranchStatus sync is complete");
+      this._createMenu();
+      this._tray.setImage(__dirname + "/imgs/icon.png");
+      
+    }.bind(this));
   },
 
   _openBranchPromptWindow : function() {
@@ -160,7 +178,9 @@ TrayMenu.prototype = {
       }.bind(this));
       
       this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
-      this._branchPromptWindow.focus();
+      this._branchPromptWindow.webContents.on('did-finish-load', function() {
+        this._branchPromptWindow.focus();
+      }.bind(this));
     }
   },
 

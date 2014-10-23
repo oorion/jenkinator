@@ -6,14 +6,33 @@ var displayNotification = require('display-notification');
 
 function BranchStatus(db) {
   this._db = db;
+  this._pollInterval = null;
+  this.SYNC_URL = "http://jenkinstein.herokuapp.com/branches.json";
+  
+  _.bindAll(this, "sync");
+  
   EventEmitter.call(this);
 }
 
 BranchStatus.prototype = {
 
+  startPolling: function() {
+    this.sync();
+    this._pollInterval = setInterval(this.sync, 5 * 60 * 1000);
+  },
+
+  stopPolling: function() {
+    if (this._pollInterval) {
+      clearInterval(this._pollInterval);
+      this._pollInterval = null;
+    }
+  },
+
   sync : function() {
-    console.log("Syncing branch status...starting");
-    request('http://jenkinstein.herokuapp.com/branches.json', function (error, response, body) {
+    this.emit("sync:start");
+    console.log("SYNC start: " + this.SYNC_URL);
+
+    request(this.SYNC_URL, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var branches = JSON.parse(body).latest;
         

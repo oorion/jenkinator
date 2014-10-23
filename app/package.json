@@ -17,7 +17,8 @@
     "nstore": "0.5.2",
     "underscore": "1.7.0",
     "bluebird": "2.3.6",
-    "display-notification": "1.0.1"
+    "display-notification": "1.0.1",
+    "moment":"2.8.3"
   },
   "author": "Euge Gimelberg",
   "license": "MIT"

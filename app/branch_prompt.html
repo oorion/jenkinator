@@ -50,7 +50,11 @@
         
         $("[name=branch]").val('');
         return false;
-      }).find(":input:first").focus();
+      });
+      
+      setTimeout(function(){
+        $("#branch-form").find(":input:first").focus();
+      }, 500);
     })
   </script>
 </body>
