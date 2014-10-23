@@ -31,6 +31,9 @@ module.exports = function(grunt) {
     // copy app source into a vanilla Atom Shell
     shell.exec("cp -R binaries/Atom.app/ " + grunt.config.get("distAppName"));
     shell.exec("cp -R app " + grunt.config.get("distAppName") + "/Contents/Resources");
+    
+    // copy icons
+    shell.exec("cp icons/icons.icns " + grunt.config.get("distAppName") + "/Contents/Resources/atom.icns");
   });
 
   grunt.registerTask("bootstrap", ["download-atom-shell", "apm-install"]);
