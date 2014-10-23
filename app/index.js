@@ -13,9 +13,18 @@ App.on("ready", function() {
   // ensure that we a location to store data in
   Shell.mkdir("-p", storagePath);
 
-  var db = new BranchDB(storagePath);
-  var branchStatus = new BranchStatus(db);
-  var trayMenu = new TrayMenu(db, branchStatus);
+  var branchStatus, trayMenu, db = new BranchDB(storagePath);
 
-  console.log("Tracking Branches:", db.trackedBranches());
+  db.ready(function() {
+    branchStatus = new BranchStatus(db);
+    trayMenu = new TrayMenu(db, branchStatus);
+
+    db.trackedBranches(function(branches) {
+      console.log("Tracking Branches:", branches);
+    });
+
+    console.log("Syncing branch status...");
+    branchStatus.sync();
+
+  })
 });

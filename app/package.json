@@ -13,7 +13,9 @@
   "dependencies" : {
     "lowdb" : "0.5.0",
     "request": "2.45.0",
-    "shelljs": "^0.3.0"
+    "shelljs": "^0.3.0",
+    "nstore": "0.5.2",
+    "underscore": "1.7.0"
   },
   "author": "Euge Gimelberg",
   "license": "MIT"

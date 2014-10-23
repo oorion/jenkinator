@@ -7,8 +7,8 @@ var BrowserWindow = require('browser-window');
 var IPC = require('ipc');
 var Shell = require('shell');
 
-var MONTH_NAMES = new Array("Jan", "Feb", "Mar", 
-"Apr", "May", "June", "July", "Aug", "Sept", 
+var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
+"Apr", "May", "June", "July", "Aug", "Sept",
 "Oct", "Nov", "Dec");
 
 function TrayMenu(db, branchStatus) {
@@ -25,63 +25,63 @@ TrayMenu.prototype = {
   _createMenu : function() {
     console.log("Creating menu");
 
-    var trackedBranches = this._db.trackedBranches();
-    var menu = new Menu();
+    this._db.trackedBranches(function(trackedBranches) {
+      var menu = new Menu();
+      console.log(trackedBranches);
 
-    console.log(trackedBranches);
+      // create entry for branch
+      trackedBranches.forEach(function(branch) {
+        var icon = "🕒";
+        switch(branch.status) {
+        case 'success':
+          icon = "😃";
+          break;
+        case 'failed':
+          icon = "😡";
+        }
 
-    // create entry for branch
-    trackedBranches.forEach(function(branch) {
-      var icon = "🕒";
-      switch(branch.status) {
-      case 'success':
-        icon = "😃";
-        break;
-      case 'failed':
-        icon = "😡";
-      }
-      
+        menu.append(new MenuItem({
+          type: "submenu",
+          label: icon + " " + branch.name,
+          submenu: this._createBranchSubmenu(branch)
+        }));
+      }, this);
+
+      //
+
+      menu.append(new MenuItem({ type: "separator" }));
       menu.append(new MenuItem({
-        type: "submenu",
-        label: icon + " " + branch.name,
-        submenu: this._createBranchSubmenu(branch)
+        label: "Add Branch...",
+        click: function() {
+          this._createBranchPromptWindow();
+        }.bind(this)
       }));
-    }, this);
-    
-    //
 
-    menu.append(new MenuItem({ type: "separator" }));
-    menu.append(new MenuItem({
-      label: "Add Branch...",
-      click: function() {
-        this._createBranchPromptWindow();
-      }.bind(this)
-    }));
-    
-    menu.append(new MenuItem({
-      label: "Refresh status",
-      click: function() {
-        this._branchStatus.sync();
-      }.bind(this)
-    }));
+      menu.append(new MenuItem({
+        label: "Refresh status",
+        click: function() {
+          this._branchStatus.sync();
+        }.bind(this)
+      }));
 
-    /*menu.append(new MenuItem({
-      label : "Manage Branches...",
-      type: "normal",
-      click: function() {
-        this._openBranchManagementWindow();
-      }.bind(this)
-    }));*/
+      /*menu.append(new MenuItem({
+        label : "Manage Branches...",
+        type: "normal",
+        click: function() {
+          this._openBranchManagementWindow();
+        }.bind(this)
+      }));*/
 
-    menu.append(new MenuItem({ type: "separator" }));
-    menu.append(new MenuItem({
-      label: "Quit",
-      click: function() {
-        App.quit();
-      }
-    }));
+      menu.append(new MenuItem({ type: "separator" }));
+      menu.append(new MenuItem({
+        label: "Quit",
+        click: function() {
+          App.quit();
+        }
+      }));
 
-    this._tray.setContextMenu(menu);
+      this._tray.setContextMenu(menu);
+    }.bind(this));
   },
 
   _createBranchSubmenu: function(branch) {
@@ -89,19 +89,19 @@ TrayMenu.prototype = {
 
     if (branch.lastBuild) {
       var builtDateFormatted = branch.lastBuild.time;
-      
+
       try {
         var builtDate = new Date(Date.parse(builtDateFormatted));
         builtDateFormatted = MONTH_NAMES[builtDate.getMonth()] + " " + builtDate.getDate() + ", " + builtDate.getFullYear() + " " + builtDate.getHours() + ":" + builtDate.getMinutes()
       } catch (ex) {
         console.log("Could not parse date: " + builtDateFormatted + ", error: " + ex.message());
       }
-      
+
       menu.append(new MenuItem({
         label: "Last built: " + builtDateFormatted,
         enabled: false
       }));
-      
+
       menu.append(new MenuItem({
         label: "View in Github",
         click: function() {
@@ -124,7 +124,7 @@ TrayMenu.prototype = {
         enabled: false
       }));
     }
-    
+
     menu.append(new MenuItem({
       label: "✗ Stop tracking this branch",
       click: function() {
@@ -136,7 +136,7 @@ TrayMenu.prototype = {
         );
       }.bind(this)
     }));
-    
+
     return menu;
   },
 
@@ -174,10 +174,10 @@ TrayMenu.prototype = {
       this._branchManagementWindow.focus();
 
       this._branchManagementWindow.webContents.on('did-finish-load', function() {
-        var branches = this._db.trackedBranches();
-        console.log(branches);
-
-        this._branchManagementWindow.webContents.send("branches:load", branches);
+        this._db.trackedBranches(function(branches) {
+          console.log(branches);
+          this._branchManagementWindow.webContents.send("branches:load", branches);
+        }.bind(this));
       }.bind(this));
     }
   }

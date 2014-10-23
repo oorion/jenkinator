@@ -1,4 +1,7 @@
-var low = require('lowdb')
+var nStore = require('nstore')
+nStore = nStore.extend(require('nstore/query')());
+
+var _ = require("underscore")._;
 
 function BranchDB(storagePath) {
   this.storagePath = storagePath;
@@ -6,22 +9,33 @@ function BranchDB(storagePath) {
 
 BranchDB.prototype = {
 
-  // seems like we need to get a fresh handle to the db as writing within a timeout does not actually persist the data
-  _getDb : function() {
-    return low(this.storagePath + "/branches.json");
+  ready: function(cb) {
+    this._db = nStore.new(this.storagePath + "/branches.json", cb);
   },
 
-  addTrackedBranch: function(branchName) {
+  addTrackedBranch: function(branchName, cb) {
     console.log("Tracking Branch:", branchName);
-    this._getDb()("trackedBranches").push({ name: branchName });
+    this._db.save(branchName, {}, function(err, key) {
+      cb();
+    });
   },
   
   updateTrackedBranch: function(branchName, values) {
-    this._getDb()("trackedBranches").find({ name: branchName }).assign(values);
+    console.log("Updating Branch:", branchName);
+    this._db.save(branchName, values, function(err, key) {
+      // cb();
+    });
   },
 
-  trackedBranches: function() {
-    return this._getDb()("trackedBranches").value();
+  trackedBranches: function(cb) {
+    this._db.all(function(err, results) {
+      var resultsArray = [];
+      _.each(results, function(v, k) {
+        resultsArray.push(_.extend(v, { name : k }));
+      });
+
+      cb(resultsArray);
+    });
   }
 
 };
