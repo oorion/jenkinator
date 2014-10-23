@@ -163,7 +163,7 @@ TrayMenu.prototype = {
       
       this._tray.setContextMenu(menu);
       
-      this._tray.setImage(__dirname + "/imgs/blue.png");
+      this._tray.setImage(__dirname + "/imgs/icon_waiting.png");
     }.bind(this));
     
     this._branchStatus.on("sync:complete", function() {
