@@ -66,6 +66,13 @@ TrayMenu.prototype = {
         }.bind(this)
       }));
 
+      menu.append(new MenuItem({
+        label: "Notify me of build changes",
+        type: "checkbox",
+        click: function() {
+        }.bind(this)
+      }));
+
       /*menu.append(new MenuItem({
         label : "Manage Branches...",
         type: "normal",

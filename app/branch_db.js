@@ -11,7 +11,11 @@ function BranchDB(storagePath) {
 BranchDB.prototype = {
 
   ready: function(cb) {
-    this._db = nStore.new(this.storagePath + "/branches.json", cb);
+    return new Promise(function(resolve) {
+      this._db = nStore.new(this.storagePath + "/branches.json", function() {
+        resolve(true);
+      });
+    }.bind(this));
   },
 
   addTrackedBranch: function(branchName, cb) {
