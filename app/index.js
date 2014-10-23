@@ -18,13 +18,5 @@ App.on("ready", function() {
   db.ready(function() {
     branchStatus = new BranchStatus(db);
     trayMenu = new TrayMenu(db, branchStatus);
-
-    db.trackedBranches(function(branches) {
-      console.log("Tracking Branches:", branches);
-    });
-
-    console.log("Syncing branch status...");
-    branchStatus.sync();
-
   })
 });

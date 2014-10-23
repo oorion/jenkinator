@@ -11,6 +11,7 @@ function BranchStatus(db) {
 BranchStatus.prototype = {
 
   sync : function() {
+    console.log("Syncing branch status...starting");
     request('http://jenkinstein.herokuapp.com/branches.json', function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var branches = JSON.parse(body).latest;
@@ -22,7 +23,8 @@ BranchStatus.prototype = {
         });
 
         this._db.trackedBranches(function(trackedBranches) {
-          Promise.all(_.compact(this._createWritePromises(branchesHash, trackedBranches))).then(function(a) {
+          Promise.all(this._createWritePromises(branchesHash, trackedBranches)).then(function() {
+            console.log("Syncing branch status...complete");
             this.emit("sync:complete");
           }.bind(this));
         }.bind(this));
@@ -57,6 +59,8 @@ BranchStatus.prototype = {
         return null;
       }
     }, this);
+
+    return _.compact(writePromises);
   }
 
 };

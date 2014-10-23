@@ -26,11 +26,9 @@ function TrayMenu(db, branchStatus) {
 TrayMenu.prototype = {
 
   _createMenu : function() {
-    console.log("Creating menu");
-
     this._db.trackedBranches(function(trackedBranches) {
       var menu = new Menu();
-      console.log(trackedBranches);
+      console.log("Creating menu for branches", _.pluck(trackedBranches, "name"));
 
       // create entry for branch
       trackedBranches.forEach(function(branch) {
@@ -148,10 +146,7 @@ TrayMenu.prototype = {
       }.bind(this));
     }.bind(this));
 
-    this._branchStatus.on("sync:complete", function() {
-      console.log("BranchStatus sync is complete");
-      this._createMenu();
-    }.bind(this));
+    this._branchStatus.on("sync:complete", this._createMenu);
   },
 
   _openBranchPromptWindow : function() {
