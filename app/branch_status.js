@@ -7,9 +7,9 @@ function BranchStatus(db) {
   this._db = db;
   this._pollInterval = null;
   this.SYNC_URL = "http://jenkinstein.herokuapp.com/branches.json";
-  
+
   _.bindAll(this, "sync");
-  
+
   EventEmitter.call(this);
 }
 
@@ -34,9 +34,9 @@ BranchStatus.prototype = {
     request(this.SYNC_URL, function (error, response, body) {
       if (!error && response.statusCode == 200) {
         var branches = JSON.parse(body).latest;
-        
+
         // convert array to hash for convenience below
-        var branchesHash = {}
+        var branchesHash = {};
         branches.forEach(function(b){
           branchesHash[b.name] = b;
         });
@@ -44,12 +44,9 @@ BranchStatus.prototype = {
         this._db.trackedBranches(function(trackedBranches) {
           Promise.all(this._createWritePromises(branchesHash, trackedBranches)).then(function() {
             console.log("Syncing branch status...complete");
-            this.emit("sync:complete", {
-              title: 'Sync is complete',
-              subtitle: 'Hi Nick!!',
-              text: 'We have synced up',
-              sound: 'Ping'
-            });
+            this._db.failCount().then(function(failCount) {
+              this.emit("sync:complete", { failCount : failCount });
+            }.bind(this));
           }.bind(this));
         }.bind(this));
       }

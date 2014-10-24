@@ -10,11 +10,6 @@ var Moment = require('moment');
 var _ = require("underscore")._;
 var EventEmitter = require("events").EventEmitter;
 
-
-var MONTH_NAMES = new Array("Jan", "Feb", "Mar",
-"Apr", "May", "June", "July", "Aug", "Sept",
-"Oct", "Nov", "Dec");
-
 function TrayMenu(db, prefsDb, branchStatus) {
   this._db = db;
   this._prefsDb = prefsDb;
@@ -169,17 +164,17 @@ TrayMenu.prototype = {
         label: "Syncing build statuses...",
         enabled: false
       }));
-      
+
       this._tray.setContextMenu(menu);
-      
+
       this._tray.setImage(__dirname + "/imgs/icon_waiting.png");
     }.bind(this));
-    
+
     this._branchStatus.on("sync:complete", function() {
       console.log("event: BranchStatus sync is complete");
       this._createMenu();
       this._tray.setImage(__dirname + "/imgs/icon.png");
-      
+
     }.bind(this));
   },
 
@@ -192,7 +187,7 @@ TrayMenu.prototype = {
       this._branchPromptWindow.on('closed', function() {
         this._branchPromptWindow = null;
       }.bind(this));
-      
+
       this._branchPromptWindow.loadUrl('file://' + __dirname + '/branch_prompt.html');
       this._branchPromptWindow.webContents.on('did-finish-load', function() {
         this._branchPromptWindow.focus();

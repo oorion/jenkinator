@@ -5,7 +5,7 @@ var BranchDB = require("./branch_db");
 var PrefsDB = require("./prefs_db");
 var BranchStatus = require("./branch_status");
 var Promise = require("bluebird");
-var displayNotification = require('display-notification');
+var notifier = require("node-notifier");
 
 App.on("window-all-closed", function() {
   if (process.platform !== "darwin") App.quit();
@@ -27,7 +27,14 @@ App.on("ready", function() {
     then(function() {
       branchStatus.on("sync:complete", function(syncData) {
         prefsDb.get("notifyOnStatusChange").then(function(shouldNotify) {
-          shouldNotify && displayNotification(syncData);
+          if (!shouldNotify) return;
+          if (syncData.failCount > 0) {
+            notifier.notify({
+              title : "Branch Failures",
+              message: syncData.failCount + " of your branches are failing",
+              sound: "Ping"
+            });
+          }
         });
       });
     });

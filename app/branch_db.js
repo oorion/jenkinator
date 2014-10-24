@@ -49,6 +49,14 @@ BranchDB.prototype = {
 
       cb(resultsArray);
     });
+  },
+
+  failCount: function() {
+    return new Promise(function(resolve) {
+      this._db.find({ "status !=" : "success" }, function(err, results) {
+        resolve(_.keys(results).length);
+      })
+    }.bind(this));
   }
 
 };
