@@ -6,6 +6,12 @@ var PrefsDB = require("./prefs_db");
 var BranchStatus = require("./branch_status");
 var Promise = require("bluebird");
 var notifier = require("node-notifier");
+var cp = require("child_process");
+
+// when clicking on the notification, we display the menubar
+notifier.on("click", function() {
+  cp.exec("osascript '" + __dirname + "/scripts/show-menu-bar.applescript'");
+});
 
 function failureNotification(failCount) {
   var message;
@@ -18,7 +24,8 @@ function failureNotification(failCount) {
   notifier.notify({
     title : "Jenkinator",
     message: message,
-    sound: "Ping"
+    sound: "Ping",
+    wait : true
   });
 }
 
