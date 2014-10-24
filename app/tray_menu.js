@@ -48,7 +48,10 @@ TrayMenu.prototype = {
         }));
       }, this);
 
-      menu.append(new MenuItem({ type: "separator" }));
+      if (trackedBranches.length) {
+        menu.append(new MenuItem({ type: "separator" }));
+      }
+
       menu.append(new MenuItem({
         label: "Add Branch...",
         click: function() {

@@ -31,7 +31,7 @@ App.on("ready", function() {
           if (syncData.failCount > 0) {
             notifier.notify({
               title : "Branch Failures",
-              message: syncData.failCount + " of your branches are failing",
+              message: syncData.failCount + " of your branches " + (syncData.failCount === 1 ? "is" : "are") + " failing",
               sound: "Ping"
             });
           }
