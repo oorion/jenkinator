@@ -67,16 +67,16 @@ TrayMenu.prototype = {
       }));
 
       var notificationMenuItem = new MenuItem({
-        label: "Notify me of build changes",
+        label: "Notify me of build failures",
         type: "checkbox",
         click: function(menuItem) {
-          this._prefsDb.set("notifyOnStatusChange", menuItem.checked);
+          this._prefsDb.set("notifyOnBuildFailure", menuItem.checked);
         }.bind(this)
       });
 
       menu.append(notificationMenuItem);
 
-      this._prefsDb.notifyOnStatusChange().then(function(value) {
+      this._prefsDb.notifyOnBuildFailure().then(function(value) {
         notificationMenuItem.checked = value;
       });
 

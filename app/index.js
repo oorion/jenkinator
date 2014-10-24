@@ -16,7 +16,7 @@ function failureNotification(failCount) {
   };
 
   notifier.notify({
-    title : "Branch Failures",
+    title : "Jenkinator",
     message: message,
     sound: "Ping"
   });
@@ -40,7 +40,7 @@ App.on("ready", function() {
       trayMenu = new TrayMenu(branchDb, prefsDb, branchStatus);
 
       branchStatus.on("sync:complete", function(syncData) {
-        prefsDb.notifyOnStatusChange().then(function(shouldNotify) {
+        prefsDb.notifyOnBuildFailure().then(function(shouldNotify) {
           if (shouldNotify && syncData.failCount > 0) failureNotification(syncData.failCount);
         });
       });

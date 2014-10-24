@@ -41,8 +41,8 @@ PrefsDB.prototype = {
     }.bind(this));
   },
 
-  notifyOnStatusChange : function() {
-    return this.get("notifyOnStatusChange", true);
+  notifyOnBuildFailure : function() {
+    return this.get("notifyOnBuildFailure", true);
   }
 };
 
