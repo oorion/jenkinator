@@ -14,7 +14,7 @@
     "jenkins",
     "atom-shell"
   ],
-  "author": "Euge Gimelberg",
+  "author": "Euge Gimelberg, Nick Burwell",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/euge/jenkinator/issues"

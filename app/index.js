@@ -7,6 +7,21 @@ var BranchStatus = require("./branch_status");
 var Promise = require("bluebird");
 var notifier = require("node-notifier");
 
+function failureNotification(failCount) {
+  var message;
+  if (failCount === 1) {
+    message = failCount + " branch is failing";
+  } else {
+    message = failCount + " branches are failing"
+  };
+
+  notifier.notify({
+    title : "Branch Failures",
+    message: message,
+    sound: "Ping"
+  });
+}
+
 App.on("window-all-closed", function() {
   if (process.platform !== "darwin") App.quit();
 });
@@ -23,19 +38,12 @@ App.on("ready", function() {
     .then(function() {
       branchStatus = new BranchStatus(branchDb);
       trayMenu = new TrayMenu(branchDb, prefsDb, branchStatus);
-    }).
-    then(function() {
+
       branchStatus.on("sync:complete", function(syncData) {
-        prefsDb.get("notifyOnStatusChange").then(function(shouldNotify) {
-          if (!shouldNotify) return;
-          if (syncData.failCount > 0) {
-            notifier.notify({
-              title : "Branch Failures",
-              message: syncData.failCount + " of your branches " + (syncData.failCount === 1 ? "is" : "are") + " failing",
-              sound: "Ping"
-            });
-          }
+        prefsDb.notifyOnStatusChange().then(function(shouldNotify) {
+          if (shouldNotify && syncData.failCount > 0) failureNotification(syncData.failCount);
         });
       });
+
     });
 });

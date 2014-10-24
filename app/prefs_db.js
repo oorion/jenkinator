@@ -4,6 +4,8 @@ nStore = nStore.extend(require('nstore/query')());
 var _ = require("underscore")._;
 var Promise = require("bluebird");
 
+var NOT_FOUND_REGEXP = /Document does not exist for/
+
 function PrefsDB(storagePath) {
   this.storagePath = storagePath;
 }
@@ -18,10 +20,15 @@ PrefsDB.prototype = {
     }.bind(this));
   },
 
-  get: function(key) {
+  get: function(key, defaultValue) {
     return new Promise(function(resolve) {
       this._db.get(key, function(err, doc) {
-        resolve(doc);
+        // when the document isn't found, resolve with the default value, which itself may not be provided
+        if (err && NOT_FOUND_REGEXP.test(err.message)) {
+          resolve(defaultValue);
+        } else {
+          resolve(doc);
+        }
       })
     }.bind(this));
   },
@@ -33,6 +40,10 @@ PrefsDB.prototype = {
       })
     }.bind(this));
   },
+
+  notifyOnStatusChange : function() {
+    return this.get("notifyOnStatusChange", true);
+  }
 };
 
 module.exports = PrefsDB;

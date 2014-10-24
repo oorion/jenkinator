@@ -76,7 +76,7 @@ TrayMenu.prototype = {
 
       menu.append(notificationMenuItem);
 
-      this._prefsDb.get("notifyOnStatusChange").then(function(value) {
+      this._prefsDb.notifyOnStatusChange().then(function(value) {
         notificationMenuItem.checked = value;
       });
 
