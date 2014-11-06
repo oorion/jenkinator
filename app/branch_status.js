@@ -53,7 +53,6 @@ BranchStatus.prototype = {
       else {
         console.log("SYNC ERROR with branch status server");
         console.log(error);
-        console.log(response.statusCode);
       }
     }.bind(this));
   },
