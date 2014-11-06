@@ -51,10 +51,11 @@ BranchDB.prototype = {
     });
   },
 
-  failCount: function() {
+  failedBranches: function() {
     return new Promise(function(resolve) {
-      this._db.find({ "status !=" : "success" }, function(err, results) {
-        resolve(_.keys(results).length);
+      this._db.find({ "status"            : "failed",
+                      "previousStatus !=" : "failed" }, function(err, results) {
+        resolve(_.keys(results));
       })
     }.bind(this));
   }

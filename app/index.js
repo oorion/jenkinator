@@ -13,12 +13,13 @@ notifier.on("click", function() {
   cp.exec("osascript '" + __dirname + "/scripts/show-menu-bar.applescript'");
 });
 
-function failureNotification(failCount) {
+function failureNotification(failedBranches) {
   var message;
-  if (failCount === 1) {
-    message = failCount + " branch is failing";
+  if (failedBranches.length === 1) {
+    message = failedBranches[0] + " is now failing!";
   } else {
-    message = failCount + " branches are failing"
+    message = failedBranches.length + " branches are now failing!\n";
+    message += failedBranches.join(", ");
   };
 
   notifier.notify({
@@ -48,7 +49,7 @@ App.on("ready", function() {
 
       branchStatus.on("sync:complete", function(syncData) {
         prefsDb.notifyOnBuildFailure().then(function(shouldNotify) {
-          if (shouldNotify && syncData.failCount > 0) failureNotification(syncData.failCount);
+          if (shouldNotify && syncData.failedBranches.length > 0) failureNotification(syncData.failedBranches);
         });
       });
 

@@ -44,8 +44,8 @@ BranchStatus.prototype = {
         this._db.trackedBranches(function(trackedBranches) {
           Promise.all(this._createWritePromises(branchesHash, trackedBranches)).then(function() {
             console.log("Syncing branch status...complete");
-            this._db.failCount().then(function(failCount) {
-              this.emit("sync:complete", { failCount : failCount });
+            this._db.failedBranches().then(function(failedBranches) {
+              this.emit("sync:complete", { failedBranches : failedBranches });
             }.bind(this));
           }.bind(this));
         }.bind(this));
@@ -53,6 +53,8 @@ BranchStatus.prototype = {
       else {
         console.log("SYNC ERROR with branch status server");
         console.log(error);
+        // get UI back in usable state, but don't notify
+        this.emit("sync:complete", { failedBranches : [] });
       }
     }.bind(this));
   },
@@ -63,10 +65,16 @@ BranchStatus.prototype = {
 
       var info = branches[branch.name];
       if (info) {
-        console.log(info);
+        if (branch.lastBuild && branch.lastBuild.sha == info.sha)
+        {
+          console.log("Already have this branch info, not updating DB.");
+          return null;
+        }
+        
         return this._db.updateTrackedBranch(branch.name, {
           name : branch.name,
           status : info.green ? 'success' : 'failed',
+          previousStatus : branch.status || 'new',
           lastBuild : {
             time : info.last_built,
             url : info.url,
