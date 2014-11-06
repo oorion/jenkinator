@@ -61,16 +61,10 @@ BranchStatus.prototype = {
 
   _createWritePromises: function(branches, trackedBranches) {
     var writePromises = trackedBranches.map(function(branch) {
-      console.log("looking at " + branch.name);
+      console.log("looking at " + branch.name + ", " + branch.status);
 
       var info = branches[branch.name];
       if (info) {
-        if (branch.lastBuild && branch.lastBuild.sha == info.sha)
-        {
-          console.log("Already have this branch info, not updating DB.");
-          return null;
-        }
-        
         return this._db.updateTrackedBranch(branch.name, {
           name : branch.name,
           status : info.green ? 'success' : 'failed',
