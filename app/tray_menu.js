@@ -224,8 +224,7 @@ TrayMenu.prototype = {
   addLocalBranches : function() {
     var branches = Shell.exec('cd ~/invoca/web && git branch --no-color').output;
 
-    var splitBranches = branches.split(/ +/);
-    splitBranches.splice(0, 1);
+    var splitBranches = branches.split(/\n/);
     updatedBranches = _.map(splitBranches, function(branch) {
       return branch.replace(/\*/, "").trim();
     });
