@@ -5,7 +5,7 @@ var App = require('app');
 var Dialog = require('dialog');
 var BrowserWindow = require('browser-window');
 var IPC = require('ipc');
-var Shell = require('shell');
+var Shell = require('shelljs');
 var Moment = require('moment');
 var _ = require("underscore")._;
 var EventEmitter = require("events").EventEmitter;
@@ -20,6 +20,8 @@ function TrayMenu(db, prefsDb, branchStatus) {
   _.bindAll(this, "_initEvents", "_createMenu", "_createBranchSubmenu", "_openBranchPromptWindow", "_openBranchManagementWindow");
 
   this._initEvents();
+  this.addLocalBranches.call(this);
+  this._createMenu();
   this._branchStatus.startPolling();
 }
 
@@ -217,6 +219,21 @@ TrayMenu.prototype = {
         }.bind(this));
       }.bind(this));
     }
+  },
+
+  addLocalBranches : function() {
+    var branches = Shell.exec('cd ~/invoca/web && git branch --no-color').output;
+
+    var splitBranches = branches.split(/ +/);
+    splitBranches.splice(0, 1);
+    updatedBranches = _.map(splitBranches, function(branch) {
+      return branch.replace(/\*/, "").trim();
+    });
+
+    updatedBranches.forEach(function(branch) {
+      this._db.addTrackedBranch(branch, function() {
+      }.bind(this));
+    }.bind(this));
   }
 };
 
